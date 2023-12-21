@@ -9,8 +9,10 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
+    "h3-zod": "^0.5.2",
     "nitropack": "^2.8.1",
-    "puppeteer": "^21.6.1"
+    "puppeteer": "^21.6.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.4.6",
