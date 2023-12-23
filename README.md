@@ -36,14 +36,10 @@ docker compose up -d
 4. All done, you can execute the first query
 
 ```sh
-curl --location 'http://localhost:3000/api/convert' \
+curl --location 'http://localhost:3000/api/convert/to-image' \
 --header 'Content-Type: application/json' \
 --output 'image.png' \
---data '{
-    "target": "<h1>HTML Convert</h1>",
-    "from": "html",
-    "to": "image"
-}'
+--data '{"url": "https://github.com/alteracs/html-converter"}'
 ```
 
 ###  Environment variables
