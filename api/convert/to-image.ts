@@ -4,6 +4,8 @@ const validateRules = z.object({
   url: z.string().url().optional(),
   html: z.string().optional(),
   options: z.object({
+    headers: z.record(z.string()).optional(),
+    waitUntil: z.enum(['load', 'domcontentloaded']).optional(),
     type: z.enum(['png', 'jpeg', 'webp']).optional(),
     quality: z.number().optional(),
     fullPage: z.boolean().optional(),
@@ -20,14 +22,16 @@ const validateRules = z.object({
 
 export default eventHandler(async (event) => {
   const { url, html, options } = await useValidatedBody(event, validateRules)
+  const { headers, waitUntil, ...imageOptions } = options
 
   const browser = await useBrowser()
   const page = await browser.newPage()
 
-  url && await page.goto(url)
-  html && await page.setContent(html, { waitUntil: 'load' })
+  headers && await page.setExtraHTTPHeaders(headers)
+  url && await page.goto(url, { waitUntil })
+  html && await page.setContent(html, { waitUntil })
 
-  const result = await page.screenshot(options)
+  const result = await page.screenshot(imageOptions)
 
   await page.close()
 

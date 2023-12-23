@@ -4,9 +4,11 @@ const validateRules = z.object({
   url: z.string().url().optional(),
   html: z.string().optional(),
   options: z.object({
+    headers: z.record(z.string()).optional(),
+    waitUntil: z.enum(['load', 'domcontentloaded']).optional(),
     landscape: z.boolean().optional(),
     format: z.enum(['letter', 'legal', 'tabloid', 'ledger', 'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6']).optional(),
-  }).optional(),
+  }),
 }).superRefine(({ url, html }, ctx) => {
   if (!url && !html) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Required field is not filled in', params: ['url', 'html'] })
@@ -19,14 +21,16 @@ const validateRules = z.object({
 
 export default eventHandler(async (event) => {
   const { url, html, options } = await useValidatedBody(event, validateRules)
+  const { headers, waitUntil, ...pdfOptions } = options
 
   const browser = await useBrowser()
   const page = await browser.newPage()
 
-  url && await page.goto(url)
-  html && await page.setContent(html, { waitUntil: 'load' })
+  headers && await page.setExtraHTTPHeaders(headers)
+  url && await page.goto(url, { waitUntil })
+  html && await page.setContent(html, { waitUntil })
 
-  const result = await page.pdf(options)
+  const result = await page.pdf(pdfOptions)
 
   await page.close()
 
